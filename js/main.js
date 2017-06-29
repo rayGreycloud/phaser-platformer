@@ -2,6 +2,8 @@ function Hero(game, x, y) {
   // Call constructor
   Phaser.Sprite.call(this, game, x, y, 'hero');
   this.anchor.set(0.5, 0.5);
+  this.game.physics.enable(this);
+  this.body.collideWorldBounds = true;
 }
 // Inherit from Phaser.sprite
 Hero.prototype = Object.create(Phaser.Sprite.prototype);
@@ -9,7 +11,8 @@ Hero.prototype.constructor = Hero;
 
 // Move method
 Hero.prototype.move = function (direction) {
-  this.x += direction * 2.5; // 2.5 pixels/frame
+  const SPEED = 200;
+  this.body.velocity.x = direction * SPEED;
 }
 
 // Create game state
@@ -59,6 +62,8 @@ PlayState._handleInput = function () {
     this.hero.move(-1); // Move hero left
   } else if (this.keys.right.isDown) {
     this.hero.move(1); // Move hero right
+  } else {
+    this.hero.move(0); // stop
   }
 }
 
