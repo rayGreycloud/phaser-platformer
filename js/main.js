@@ -1,6 +1,7 @@
 function Hero(game, x, y) {
   // Call constructor
   Phaser.Sprite.call(this, game, x, y, 'hero');
+  this.anchor.set(0.5, 0.5);
 }
 // Inherit from Phaser.sprite
 Hero.prototype = Object.create(Phaser.Sprite.prototype);
@@ -34,10 +35,18 @@ PlayState.create = function () {
 PlayState._loadLevel = function (data) {
   // Spawn platforms
   data.platforms.forEach(this._spawnPlatform, this);
+  // Spawn hero and enemies
+  this._spawnCharacters({hero: data.hero});
 }
 
 PlayState._spawnPlatform = function (platform) {
   this.game.add.sprite(platform.x, platform.y, platform.image);
+}
+
+PlayState._spawnCharacters = function (data) {
+  // Spawn hero
+  this.hero = new Hero(this.game, data.hero.x, data.hero.y);
+  this.game.add.existing(this.hero);
 }
 
 window.onload = function () {
