@@ -15,6 +15,18 @@ Hero.prototype.move = function (direction) {
   this.body.velocity.x = direction * SPEED;
 }
 
+// Jump method
+Hero.prototype.jump = function () {
+  const JUMP_SPEED = 600;
+  let canJump = this.body.touching.down;
+
+  if (canJump) {
+  this.body.velocity.y = -JUMP_SPEED;
+  }
+
+  return canJump;
+}
+
 // Create game state
 PlayState = {};
 
@@ -26,8 +38,16 @@ PlayState.init = function () {
   // Create instances of Phaser.key
   this.keys = this.game.input.keyboard.addKeys({
     left: Phaser.KeyCode.LEFT,
-    right: Phaser.KeyCode.RIGHT
+    right: Phaser.KeyCode.RIGHT,
+    up: Phaser.KeyCode.UP
   });
+  // Listener for jump
+  this.keys.up.onDown.add(function () {
+    let didJump = this.hero.jump();
+    if (didJump) {
+      this.sfx.jump.play();
+    }
+  }, this);
 }
 
 PlayState.preload = function () {
@@ -44,12 +64,18 @@ PlayState.preload = function () {
   this.game.load.image('grass:1x1', 'images/grass_1x1.png');
   // Load hero
   this.game.load.image('hero', 'images/hero_stopped.png');
+  // Load sfx
+  this.game.load.audio('sfx:jump', 'audio/jump.wav');
 
 }
-// Render image
+
+// Create
 PlayState.create = function () {
   this.game.add.image(0, 0, 'background');
   this._loadLevel(this.game.cache.getJSON('level:1'));
+  this.sfx = {
+    jump: this.game.add.audio('sfx:jump')
+  };
 }
 
 // update
