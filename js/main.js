@@ -157,8 +157,10 @@ PlayState.preload = function () {
   this.game.load.image('font:numbers', 'images/numbers.png');
   // Load door
   this.game.load.spritesheet('door', 'images/door.png', 42, 66);
-  // Load key
+  // Load key image
   this.game.load.image('key', 'images/key.png');
+  // Load key icon
+  this.game.load.spritesheet('icon:key', 'images/key_icon.png', 34, 30);
 }
 
 // Create
@@ -184,6 +186,9 @@ PlayState.update = function () {
 
 // Display
 PlayState._createHud = function () {
+  // Key
+  this.keyIcon = this.game.make.image(0, 19, 'icon:key');
+  this.keyIcon.anchor.set(0, 0.5);
   // Instantiate retroFont
   const NUMBERS_STR = '0123456789X ';
   this.coinFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
@@ -196,6 +201,7 @@ PlayState._createHud = function () {
   this.hud = this.game.add.group();
   this.hud.add(coinIcon);
   this.hud.add(coinScoreImg);
+  this.hud.add(this.keyIcon);
   // Position Hud group
   this.hud.position.set(10, 10);
 }
@@ -286,7 +292,7 @@ PlayState._spawnEnemyWall = function (x, y, side) {
   sprite.body.allowGravity = false;
 }
 
-PlayState._spawnDoor = function () {
+PlayState._spawnDoor = function (x, y) {
   this.door = this.bgDecoration.create(x, y, 'door');
   this.door.anchor.setTo(0.5, 1);
   this.game.physics.enable(this.door);
@@ -298,6 +304,13 @@ PlayState._spawnKey = function (x, y) {
   this.key.anchor.set(0.5, 0.5);
   this.game.physics.enable(this.key);
   this.key.body.allowGravity = false;
+  // up & down animation with tween
+  this.key.y -= -3;
+  this.game.add.tween(this.key)
+    .to({y: this.key.y + 6}, 800, Phaser.Easing.Sinusoidal.InOut)
+    .yoyo(true)
+    .loop()
+    .start();
 }
 
 PlayState._onHeroVsCoin = function (hero, coin) {
