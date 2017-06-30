@@ -83,6 +83,9 @@ PlayState.init = function () {
       this.sfx.jump.play();
     }
   }, this);
+
+  // Initialize coin count
+  this.coinPickupCount = 0;
 }
 
 PlayState.preload = function () {
@@ -109,6 +112,8 @@ PlayState.preload = function () {
   this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
   // Load invisible "walls"
   this.game.load.image('invisible-wall', 'images/invisible_wall.png');
+  // Load coin icon
+  this.game.load.image('icon:coin', 'images/coin_icon.png');
 
 }
 
@@ -121,12 +126,22 @@ PlayState.create = function () {
     coin: this.game.add.audio('sfx:coin'),
     stomp: this.game.add.audio('sfx:stomp')
   };
+  this._createHud();
 }
 
 // update
 PlayState.update = function () {
   this._handleCollisions();
   this._handleInput();
+}
+
+// Display
+PlayState._createHud = function () {
+  let coinIcon = this.game.make.image(0, 0, 'icon:coin');
+
+  this.hud = this.game.add.group();
+  this.hud.add(coinIcon);
+  this.hud.position.set(10, 10);
 }
 
 PlayState._handleCollisions = function () {
@@ -208,6 +223,7 @@ PlayState._spawnEnemyWall = function (x, y, side) {
 PlayState._onHeroVsCoin = function (hero, coin) {
   this.sfx.coin.play();
   coin.kill();
+  this.coinPickupCount++;
 }
 
 PlayState._onHeroVsEnemy = function (hero, enemy) {
