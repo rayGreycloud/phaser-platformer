@@ -207,6 +207,10 @@ PlayState._handleCollisions = function () {
   this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
   this.game.physics.arcade.overlap(this.hero, this.spiders, this._onHeroVsEnemy, null, this);
   this.game.physics.arcade.overlap(this.hero, this.key, this._onHeroVsKey, null, this);
+  this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor,
+    function (hero, door) {
+      return this.hasKey && hero.body.touching.down;
+    }, this);
 }
 
 PlayState._handleInput = function () {
@@ -318,6 +322,12 @@ PlayState._onHeroVsKey = function (hero, key) {
   this.sfx.key.play();
   key.kill();
   this.hasKey = true;
+}
+
+PlayState._onHeroVsDoor = function (hero, door) {
+  this.sfx.door.play();
+  this.game.state.restart();
+  // TODO: next level
 }
 
 window.onload = function () {
