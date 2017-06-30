@@ -121,6 +121,8 @@ PlayState.init = function () {
 
   // Initialize coin count
   this.coinPickupCount = 0;
+  // Initialize hasKey
+  this.hasKey = false;
 }
 
 PlayState.preload = function () {
@@ -141,6 +143,8 @@ PlayState.preload = function () {
   this.game.load.audio('sfx:jump', 'audio/jump.wav');
   this.game.load.audio('sfx:coin', 'audio/coin.wav');
   this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
+  this.game.load.audio('sfx:key', 'audio/key.wav');
+  this.game.load.audio('sfx:door', 'audio/door.wav');
   // Load coin
   this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
   // Load spider
@@ -153,6 +157,8 @@ PlayState.preload = function () {
   this.game.load.image('font:numbers', 'images/numbers.png');
   // Load door
   this.game.load.spritesheet('door', 'images/door.png', 42, 66);
+  // Load key
+  this.game.load.image('key', 'images/key.png');
 }
 
 // Create
@@ -160,6 +166,8 @@ PlayState.create = function () {
   this.game.add.image(0, 0, 'background');
   this._loadLevel(this.game.cache.getJSON('level:1'));
   this.sfx = {
+    key: this.game.add.audio('sfx:key'),
+    door: this.game.add.audio('sfx:door'),
     jump: this.game.add.audio('sfx:jump'),
     coin: this.game.add.audio('sfx:coin'),
     stomp: this.game.add.audio('sfx:stomp')
@@ -198,6 +206,7 @@ PlayState._handleCollisions = function () {
   this.game.physics.arcade.collide(this.hero, this.platforms);
   this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
   this.game.physics.arcade.overlap(this.hero, this.spiders, this._onHeroVsEnemy, null, this);
+  this.game.physics.arcade.overlap(this.hero, this.key, this._onHeroVsKey, null, this);
 }
 
 PlayState._handleInput = function () {
@@ -218,6 +227,7 @@ PlayState._loadLevel = function (data) {
   this.spiders = this.game.add.group();
   this.enemyWalls = this.game.add.group();
   this.enemyWalls.visible = false;
+
   // Spawn platforms
   data.platforms.forEach(this._spawnPlatform, this);
   // Spawn hero and enemies
@@ -225,6 +235,8 @@ PlayState._loadLevel = function (data) {
   // Spawn objects
   data.coins.forEach(this._spawnCoin, this);
   this._spawnDoor(data.door.x, data.door.y);
+  this._spawnKey(data.key.x, data.key.y);
+
   // Enable Gravity
   const GRAVITY = 1200;
   this.game.physics.arcade.gravity.y = GRAVITY;
@@ -277,6 +289,13 @@ PlayState._spawnDoor = function () {
   this.door.body.allowGravity = false;
 }
 
+PlayState._spawnKey = function (x, y) {
+  this.key = this.bgDecoration.create(x, y, 'key');
+  this.key.anchor.set(0.5, 0.5);
+  this.game.physics.enable(this.key);
+  this.key.body.allowGravity = false;
+}
+
 PlayState._onHeroVsCoin = function (hero, coin) {
   this.sfx.coin.play();
   coin.kill();
@@ -293,6 +312,12 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
     this.sfx.stomp.play();
     this.game.state.restart();
   }
+}
+
+PlayState._onHeroVsKey = function (hero, key) {
+  this.sfx.key.play();
+  key.kill();
+  this.hasKey = true;
 }
 
 window.onload = function () {
