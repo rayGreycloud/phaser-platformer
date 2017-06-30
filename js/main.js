@@ -193,15 +193,16 @@ PlayState._createHud = function () {
   const NUMBERS_STR = '0123456789X ';
   this.coinFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
   // Add coin background
-  let coinIcon = this.game.make.image(0, 0, 'icon:coin');
+  let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
   // Use font
   let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width, coinIcon.height / 2, this.coinFont);
   coinScoreImg.anchor.set(0, 0.5);
   // Group
   this.hud = this.game.add.group();
+  this.hud.add(this.keyIcon);
   this.hud.add(coinIcon);
   this.hud.add(coinScoreImg);
-  this.hud.add(this.keyIcon);
+
   // Position Hud group
   this.hud.position.set(10, 10);
 }
