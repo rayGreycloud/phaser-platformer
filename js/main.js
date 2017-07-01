@@ -99,8 +99,10 @@ Spider.prototype.die = function () {
 
 // Create game state
 PlayState = {};
+// Number of game levels
+const LEVEL_COUNT = 2;
 
-PlayState.init = function () {
+PlayState.init = function (data) {
   // Correct render bug
   // Pixel art so no anti-aliasing
   this.game.renderer.renderSession.roundPixels = true;
@@ -123,10 +125,13 @@ PlayState.init = function () {
   this.coinPickupCount = 0;
   // Initialize hasKey
   this.hasKey = false;
+  // Set game level
+  this.level = (data.level || 0) % LEVEL_COUNT;
 }
 
 PlayState.preload = function () {
   // Load level data
+  this.game.load.json('level:0', 'data/level00.json');
   this.game.load.json('level:1', 'data/level01.json');
   // Load background image
   this.game.load.image('background', 'images/background.png');
@@ -166,7 +171,7 @@ PlayState.preload = function () {
 // Create
 PlayState.create = function () {
   this.game.add.image(0, 0, 'background');
-  this._loadLevel(this.game.cache.getJSON('level:1'));
+  this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
   this.sfx = {
     key: this.game.add.audio('sfx:key'),
     door: this.game.add.audio('sfx:door'),
@@ -182,6 +187,7 @@ PlayState.update = function () {
   this._handleCollisions();
   this._handleInput();
   this.coinFont.text = `x${this.coinPickupCount}`;
+  this.keyIcon.frame = this.hasKey ? 1 : 0;
 }
 
 // Display
@@ -328,7 +334,7 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
     enemy.die();
   } else { // game over
     this.sfx.stomp.play();
-    this.game.state.restart();
+    this.game.state.restart(true, false, { level: this.level });
   }
 }
 
@@ -340,13 +346,13 @@ PlayState._onHeroVsKey = function (hero, key) {
 
 PlayState._onHeroVsDoor = function (hero, door) {
   this.sfx.door.play();
-  this.game.state.restart();
-  // TODO: next level
+  this.game.state.restart(true, false, { level: this.level + 1 });
 }
 
 window.onload = function () {
   let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
   game.state.add('play', PlayState);
-  game.state.start('play');
+  // start(key, clearWorld, clearCache, level parameter)
+  game.state.start('play', true, false, {level: 0});
 
 }
